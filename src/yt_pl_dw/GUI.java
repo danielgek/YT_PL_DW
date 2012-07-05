@@ -22,6 +22,7 @@
  */
 package yt_pl_dw;
 
+import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -91,6 +92,8 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
     private static File g_outputFile;
     private Task task;
     private int max, prog;
+    private ArrayList<video> play_list = new ArrayList<video>();
+    DefaultListModel<video> modelo_lista = new DefaultListModel<video>();
 
     class Task extends SwingWorker<Void, Void> {
 
@@ -201,16 +204,19 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         }
         jProgressBar1.setStringPainted(true);
         //jComboBox2.setModel(modelo);
+        jList1.setModel(modelo_lista);
+
+
     }
 
-    public BufferedImage scanImage(String fn) throws IOException {
+    public Icon scanImage(String fn) throws IOException {
         BufferedImage img = null;
         URL url = new URL(fn);
         img = ImageIO.read(url);
         Image resizedimage2 = (Image) img;
         ImageIcon resizedimage3 = new ImageIcon(resizedimage2);
         jLabel9.setIcon(resizedimage3);
-        return img;
+        return resizedimage3;
     }
 
     /**
@@ -247,6 +253,9 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         jTextField4 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jButton8 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList();
+        jProgressBar2 = new javax.swing.JProgressBar();
         jToolBar1 = new javax.swing.JToolBar();
         jButton7 = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
@@ -361,6 +370,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                 .addComponent(jLabel2)
                 .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(jButton1))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                 .addComponent(jLabel5)
                 .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -386,7 +396,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         }
     });
 
-    jLabel3.setText("Location");
+    jLabel3.setText("Location:");
 
     jButton5.setText("Download");
     jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -424,56 +434,64 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         }
     });
 
+    jList1.setModel(new DefaultListModel());
+    jList1.setDoubleBuffered(true);
+    jList1.setCellRenderer(new BookCellRenderer());
+    jScrollPane1.setViewportView(jList1);
+
     javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
     jPanel2.setLayout(jPanel2Layout);
     jPanel2Layout.setHorizontalGroup(
         jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-            .addContainerGap(96, Short.MAX_VALUE)
-            .addComponent(jLabel3)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 383, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jButton6)
-            .addGap(18, 18, 18))
         .addGroup(jPanel2Layout.createSequentialGroup()
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel2Layout.createSequentialGroup()
-                    .addGap(236, 236, 236)
-                    .addComponent(jButton5))
-                .addGroup(jPanel2Layout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(jLabel4)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(18, 18, 18)
-                    .addComponent(jButton8)))
-            .addContainerGap(76, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel3)
+                                .addComponent(jLabel4))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jTextField4)
+                                .addComponent(jTextField3))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jButton8)
+                                .addComponent(jButton6)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)))
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                    .addComponent(jProgressBar2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(jButton5)))
+            .addContainerGap())
     );
     jPanel2Layout.setVerticalGroup(
         jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         .addGroup(jPanel2Layout.createSequentialGroup()
-            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel2Layout.createSequentialGroup()
-                    .addGap(98, 98, 98)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jLabel3)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton6)))
-                    .addGap(32, 32, 32)
-                    .addComponent(jButton5))
-                .addGroup(jPanel2Layout.createSequentialGroup()
-                    .addGap(22, 22, 22)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel4)
-                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton8))))
-            .addContainerGap(148, Short.MAX_VALUE))
+            .addGap(22, 22, 22)
+            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jLabel4)
+                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton8))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jLabel3)
+                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton6))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jProgressBar2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addContainerGap())
     );
 
     jTabbedPane1.addTab("PlayList", jPanel2);
 
+    jToolBar1.setFloatable(false);
     jToolBar1.setRollover(true);
     jToolBar1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
@@ -514,7 +532,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
             .addGap(0, 362, Short.MAX_VALUE))
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 35, Short.MAX_VALUE)
+                .addGap(0, 24, Short.MAX_VALUE)
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
     );
 
@@ -609,6 +627,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
 
 
 
+
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -635,6 +654,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+        setCursor(Cursor.WAIT_CURSOR);
         String htmlContents = "";
         try {
             URL url = new URL("http://www.youtube.com/playlist?list=PL2C9A419902CCA1EA");
@@ -672,12 +692,34 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                 String spliter[] = v.split("v=");
                 String spliter2[] = spliter[1].split("&amp;");
                 System.out.print(spliter2[0] + "\n ");
+                int format = 18;
+                String encoding = "UTF-8";
+                String userAgent = "Mozilla/5.0 (Windows NT 6.1; rv:12.0) Gecko/20100101 Firefox/12.0";
+                File outputDir = new File(jTextField2.getText());
+                String extension = getExtension(format);
+                video vd = null;
+
+                try {
+                    vd = get_info(spliter2[0], format, encoding, userAgent, outputDir, extension);
+                } catch (Exception ex) {
+                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+               
+                if (vd.status.equals("ok") ) {
+                    play_list.add(vd);
+
+                    modelo_lista.addElement(vd);
+                }else{
+                JOptionPane.showMessageDialog(this, "Fail getting video"+vd.status);
+                }
+
+                //get_info(spliter2[0],format,encoding ,userAgent, outputDir, extension);
             }
 
 
         }
 
-
+        setCursor(Cursor.DEFAULT_CURSOR);
 
     }//GEN-LAST:event_jButton8ActionPerformed
     private static String getResponseData(URLConnection conn) throws Exception {
@@ -696,6 +738,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         System.gc();
         return data;
     }
+
     private static String getExtension(int format) {
         // TODO
         return "mp4";
@@ -829,6 +872,114 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
 
     }
 
+    public video get_info(final String videoId, int format, String encoding, String userAgent, File outputdir, String extension) throws Exception {
+        video v;
+        System.out.println("Retrieving " + videoId);
+        List<NameValuePair> qparams = new ArrayList<NameValuePair>();
+        qparams.add(new BasicNameValuePair("video_id", videoId));
+        qparams.add(new BasicNameValuePair("fmt", "" + format));
+        URI uri = getUri("get_video_info", qparams);
+
+        CookieStore cookieStore = new BasicCookieStore();
+        HttpContext localContext = new BasicHttpContext();
+        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpGet httpget = new HttpGet(uri);
+        httpget.setHeader("User-Agent", userAgent);
+        String token = null;
+        String downloadUrl = null;
+        String filename = videoId;
+        String title = null, image = null, status = null;
+        System.out.println("Executing " + uri);
+        HttpResponse response = httpclient.execute(httpget, localContext);
+        HttpEntity entity = response.getEntity();
+        if (entity != null && response.getStatusLine().getStatusCode() == 200) {
+            InputStream instream = entity.getContent();
+            String videoInfo = getStringFromInputStream(encoding, instream);
+            if (videoInfo != null && videoInfo.length() > 0) {
+                List<NameValuePair> infoMap = new ArrayList<NameValuePair>();
+                URLEncodedUtils.parse(infoMap, new Scanner(videoInfo), encoding);
+                token = null;
+                downloadUrl = null;
+                filename = videoId;
+
+                for (NameValuePair pair : infoMap) {
+                    String key = pair.getName();
+                    String val = pair.getValue();
+                    System.out.println(key + "=" + val);//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                    if (key.equals("token")) {
+                        token = val;
+                    } else if (key.equals("title")) {
+                        title = val;
+                        filename = val;
+                    } else if (key.equals("thumbnail_url")) {
+                        //scanImage(val);
+                        image = val;
+                    } else if (key.equals("status")) {
+                        //scanImage(val);
+                        status = val;
+                    } else if (key.equals("url_encoded_fmt_stream_map")) {
+
+
+
+                        String[] formats = commaPattern.split(val);
+
+                        for (String fmt : formats) {
+                            //System.out.println(URLDecoder.decode(URLDecoder.decode(fmt)));
+                            String url = URLDecoder.decode(URLDecoder.decode(fmt));
+                            String split_url[] = url.split("rl=");
+                            for (int i = 0; i < split_url.length; i++) {//System.out.println("Split url n"+i+" = "+split_url[i]);
+                            }
+                            String split_quality[] = split_url[1].split("&quality");
+                            for (int i = 0; i < split_url.length; i++) {
+                                //System.out.println("Split quality n " + i + " = " + split_url[i]);
+                            }
+                            downloadUrl = split_quality[0];
+                            //System.out.println("down_url= " + split_quality[0]);
+                            /*
+                             * String[] fmtPieces = pipePattern.split(fmt);
+                             *
+                             * if (fmtPieces.length == 2) { // in the end,
+                             * download somethin! downloadUrl = fmtPieces[1];
+                             * int pieceFormat = Integer.parseInt(fmtPieces[0]);
+                             * if (pieceFormat == format) { // found what we *
+                             * downloadUrl = fmtPieces[1]; break; } }
+                             */
+                            //System.out.println("\n\n\n");
+                        }
+                    }
+                }
+
+                filename = cleanFilename(filename);
+                if (filename.length() == 0) {
+                    filename = videoId;
+                } else {
+                    filename += "_" + videoId;
+                }
+                filename += "." + extension;
+                File outputfile = new File(outputdir, filename);
+                //System.out.println("download url=" + downloadUrl);
+                if (downloadUrl != null) {
+                    //System.out.println("\npassei aki\n");
+                    //downloadWithHttpClient(userAgent, downloadUrl, outputfile);
+                    task = new Task();
+                    task.addPropertyChangeListener(this);
+                    task.downloadUrl = g_downloadUrl;
+                    task.outputfile = g_outputFile;
+                    task.userAgent = g_userAgeng;
+                    g_userAgeng = userAgent;
+                    g_downloadUrl = downloadUrl;
+                    g_outputFile = outputfile;
+                }
+            }
+        }
+        v = new video(token, title, image, downloadUrl, videoId, status, outputdir);
+        System.out.println(v.toString() + "\n\n\n\n\n\n\n");
+        return v;
+
+    }
+
     private void downloadWithHttpClient(String userAgent, String downloadUrl, File outputfile) throws Exception {
         System.out.println("\nentrei no download\n");
         HttpGet httpget2 = new HttpGet(downloadUrl);
@@ -946,9 +1097,12 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JList jList1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JProgressBar jProgressBar1;
+    private javax.swing.JProgressBar jProgressBar2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
@@ -973,6 +1127,24 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
             jProgressBar1.setValue(prog);
             System.out.println("max= " + max + "prog= " + prog);
 
+        }
+    }
+
+    class BookCellRenderer extends JLabel implements ListCellRenderer {
+
+        public Component getListCellRendererComponent(JList list, Object value,
+                int index, boolean isSelected, boolean cellHasFocus) {
+            video video = (video) value;  // Using value we are getting the object in JList
+            //System.out.println(video.toString());
+            setSize(new Dimension(300, 20));
+            setText(video.getTitle());  // Setting the text
+            try {
+                setIcon(scanImage(video.getThumbnail_url())); // Setting the Image Icon
+            } catch (IOException ex) {
+                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            return this;
         }
     }
 }

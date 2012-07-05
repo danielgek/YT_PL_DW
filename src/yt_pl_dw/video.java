@@ -15,14 +15,20 @@ public class video {
     public String title;
     public String thumbnail_url;
     public String download_url;
+    public String id;
+    public String status;
     File outputfile;
-    public video(String token, String title, String thumbnail_url, String download_url, File outputfile) {
+
+    public video(String token, String title, String thumbnail_url, String download_url, String id, String status, File outputfile) {
         this.token = token;
         this.title = title;
         this.thumbnail_url = thumbnail_url;
         this.download_url = download_url;
+        this.id = id;
+        this.status = status;
         this.outputfile = outputfile;
     }
+    
     public String getDownload_url() {
         return download_url;
     }
@@ -44,6 +50,21 @@ public class video {
     public String getToken() {
         return token;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    @Override
+    public String toString() {
+        return "video{" + "token=" + token + ", title=" + title + ", thumbnail_url=" + thumbnail_url + ", download_url=" + download_url + ", id=" + id + ", status=" + status + ", outputfile=" + outputfile + '}';
+    }
+
+    
 
     
     
