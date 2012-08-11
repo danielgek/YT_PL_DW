@@ -22,7 +22,6 @@
  */
 package yt_pl_dw;
 
-import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -90,12 +89,17 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
     private ArrayList<String> url_list = new ArrayList<String>();
     private static String g_userAgeng, g_downloadUrl;
     private static File g_outputFile;
-    private Task task;
+    private single_download single_download;
+    private playlist_downloader playlist_downloader;
     private int max, prog;
     private ArrayList<video> play_list = new ArrayList<video>();
     DefaultListModel<video> modelo_lista = new DefaultListModel<video>();
+    private String[] skinss = {"SubstanceAutumnLookAndFeel", "SubstanceBusinessBlackSteelLookAndFeel", "SubstanceBusinessBlueSteelLookAndFeel", "SubstanceBusinessLookAndFeel", "SubstanceChallengerDeepLookAndFeel", "SubstanceCremeCoffeeLookAndFeel", "SubstanceCremeLookAndFeel", "SubstanceDustCoffeeLookAndFeel",
+        "SubstanceDustLookAndFeel", "SubstanceEmeraldDuskLookAndFeel", "SubstanceGeminiLookAndFeel", "SubstanceGraphiteAquaLookAndFeel", "SubstanceGraphiteGlassLookAndFeel", "SubstanceGraphiteLookAndFeel", "SubstanceMagellanLookAndFeel",
+        "SubstanceMarinerLookAndFeel", "SubstanceMistAquaLookAndFeel", "SubstanceMistSilverLookAndFeel", "SubstanceModerateLookAndFeel", "SubstanceNebulaBrickWallLookAndFeel", "SubstanceNebulaLookAndFeel",
+        "SubstanceOfficeBlack2007LookAndFeel", "SubstanceOfficeBlue2007LookAndFeel", "SubstanceOfficeSilver2007LookAndFeel", "SubstanceRavenLookAndFeel", "SubstanceSaharaLookAndFeel", "SubstanceTwilightLookAndFeel"};
 
-    class Task extends SwingWorker<Void, Void> {
+    class playlist_downloader extends SwingWorker<Void, Void> {
 
         private String userAgent;
         private String downloadUrl;
@@ -114,18 +118,18 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
 
 
             try {
-                System.out.println("\nentrei no download\n");
+                //System.out.println("\nentrei no download\n");
                 HttpGet httpget2 = new HttpGet(g_downloadUrl);
                 httpget2.setHeader("User-Agent", g_userAgeng);
 
-                System.out.println("\n\n\n\ndownload Executing " + httpget2.getURI());
+                //System.out.println("\n\n\n\ndownload Executing " + httpget2.getURI());
                 HttpClient httpclient2 = new DefaultHttpClient();
                 HttpResponse response2 = httpclient2.execute(httpget2);
                 HttpEntity entity2 = response2.getEntity();
                 if (entity2 != null && response2.getStatusLine().getStatusCode() == 200) {
                     long length = entity2.getContentLength();
                     InputStream instream2 = entity2.getContent();
-                    System.out.println("Writing " + length + " bytes to " + g_outputFile);
+                    //System.out.println("Writing " + length + " bytes to " + g_outputFile);
                     if (g_outputFile.exists()) {
                         g_outputFile.delete();
                     }
@@ -164,6 +168,245 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                         outstream.flush();
                     } finally {
                         outstream.close();
+                        if (jCheckBox1.isSelected()) {
+                            try {
+                                String line;
+                                Process p = null;
+
+
+                                if (/*
+                                         * isWindows()
+                                         */true) {
+                                    String outmp3 = g_outputFile.getAbsolutePath().replaceAll("mp4", "mp3");
+                                    p = Runtime.getRuntime().exec("libs/ffmpeg.exe -i " + g_outputFile.getAbsolutePath() + " -y " + outmp3);
+
+                                    System.out.println("libs/ffmpeg.exe -i " + g_outputFile.getAbsolutePath() + " -y " + outmp3);
+                                    System.out.println("comando de conversao:");
+                                    //p.waitFor();
+                                    BufferedReader input2 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+
+                                    String line2 = null;
+
+                                    while ((line2 = input2.readLine()) != null) {
+                                        System.out.println(line2);
+                                    }
+
+                                    int exitVal = p.waitFor();
+                                    System.out.println("Exited with error code " + exitVal);
+
+                                    g_outputFile.delete();
+                                    //ffmpeg -i filename.mp4 filename.mp3
+                                    //logtofile("lib/adb.exe" + reinstall + " install " + op);
+
+                                }/*
+                                 * else if (isMac()) {
+                                 *
+                                 * logtofile("lib/adbMac" + reinstall + "
+                                 * install " + op);
+                                 *
+                                 * p = Runtime.getRuntime().exec("lib/adbMac
+                                 * install" + reinstall + " " + op);
+                                 *
+                                 * } else if (isUnix()) {
+                                 *
+                                 * //logtofile("This is Unix or Linux"); //p =
+                                 * Runtime.getRuntime().exec("./adbl install" +
+                                 * reinstall + " " + op);
+                                 *
+                                 * } else { //logtofile("Your OS is not
+                                 * support!!");
+                                 *
+                                 * }
+                                 */
+
+                                BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                                BufferedReader bre = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                                while ((line = bri.readLine()) != null) {
+                                    System.out.println(line);
+                                    //logtofile(line);
+                                    //modelolog.addElement(line);
+                                }
+                                bri.close();
+                                while ((line = bre.readLine()) != null) {
+                                    System.out.println(line);
+                                    //logtofile(line);
+                                    //modelolog.addElement(line);
+                                }
+                                bre.close();
+                                p.waitFor();
+                                System.out.println("Done.");
+
+                            } catch (Exception err) {
+                                System.out.println(err.toString());
+                                //modelolog.addElement(err);
+                                ///logtofile(err.toString());
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("erro na task download" + e.toString() + "\n" + e.getCause());
+            }
+            // Make random progress.
+
+
+            return null;
+        }
+        /*
+         * Executed in event dispatching thread
+         */
+
+        @Override
+        public void done() {
+            Toolkit.getDefaultToolkit().beep();
+            jButton2.setEnabled(true);
+
+        }
+    }
+    
+    class single_download extends SwingWorker<Void, Void> {
+
+        private String userAgent;
+        private String downloadUrl;
+        private File outputfile;
+        /*
+         * Main task. Executed in background thread.
+         */
+
+        @Override
+        public Void doInBackground() {
+
+            int progress = 0;
+            // Initialize progress property.
+            setProgress(0);
+
+
+
+            try {
+                //System.out.println("\nentrei no download\n");
+                HttpGet httpget2 = new HttpGet(g_downloadUrl);
+                httpget2.setHeader("User-Agent", g_userAgeng);
+
+                //System.out.println("\n\n\n\ndownload Executing " + httpget2.getURI());
+                HttpClient httpclient2 = new DefaultHttpClient();
+                HttpResponse response2 = httpclient2.execute(httpget2);
+                HttpEntity entity2 = response2.getEntity();
+                if (entity2 != null && response2.getStatusLine().getStatusCode() == 200) {
+                    long length = entity2.getContentLength();
+                    InputStream instream2 = entity2.getContent();
+                    //System.out.println("Writing " + length + " bytes to " + g_outputFile);
+                    if (g_outputFile.exists()) {
+                        g_outputFile.delete();
+                    }
+
+                    FileOutputStream outstream = new FileOutputStream(g_outputFile);
+
+                    max = (int) length;
+                    //System.out.println(jProgressBar1.getMaximum());
+                    try {
+                        byte[] buffer = new byte[2048];
+                        int count = -1;
+                        int counter = 1;
+                        while ((count = instream2.read(buffer)) != -1) {
+                            outstream.write(buffer, 0, count);
+
+                            counter = counter + count;
+                            //System.out.println(counter);
+                            final int counter2 = counter;
+
+                            // jProgressBar1.setValue(counter2);
+                            prog = counter;
+                            if (progress != 100) {
+                                progress += 1;
+                            } else {
+                                progress = 0;
+                            }
+
+                            setProgress(progress);
+
+
+
+
+                            //System.out.println("lenght= "+length+"counter= "+counter+" Progress= "+x+"Float= "+x2);
+
+                        }
+                        outstream.flush();
+                    } finally {
+                        outstream.close();
+                        if (jCheckBox1.isSelected()) {
+                            try {
+                                String line;
+                                Process p = null;
+
+
+                                if (/*
+                                         * isWindows()
+                                         */true) {
+                                    String outmp3 = g_outputFile.getAbsolutePath().replaceAll("mp4", "mp3");
+                                    p = Runtime.getRuntime().exec("libs/ffmpeg.exe -i " + g_outputFile.getAbsolutePath() + " -y " + outmp3);
+
+                                    System.out.println("libs/ffmpeg.exe -i " + g_outputFile.getAbsolutePath() + " -y " + outmp3);
+                                    System.out.println("comando de conversao:");
+                                    //p.waitFor();
+                                    BufferedReader input2 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+
+                                    String line2 = null;
+
+                                    while ((line2 = input2.readLine()) != null) {
+                                        System.out.println(line2);
+                                    }
+
+                                    int exitVal = p.waitFor();
+                                    System.out.println("Exited with error code " + exitVal);
+
+                                    g_outputFile.delete();
+                                    //ffmpeg -i filename.mp4 filename.mp3
+                                    //logtofile("lib/adb.exe" + reinstall + " install " + op);
+
+                                }/*
+                                 * else if (isMac()) {
+                                 *
+                                 * logtofile("lib/adbMac" + reinstall + "
+                                 * install " + op);
+                                 *
+                                 * p = Runtime.getRuntime().exec("lib/adbMac
+                                 * install" + reinstall + " " + op);
+                                 *
+                                 * } else if (isUnix()) {
+                                 *
+                                 * //logtofile("This is Unix or Linux"); //p =
+                                 * Runtime.getRuntime().exec("./adbl install" +
+                                 * reinstall + " " + op);
+                                 *
+                                 * } else { //logtofile("Your OS is not
+                                 * support!!");
+                                 *
+                                 * }
+                                 */
+
+                                BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                                BufferedReader bre = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                                while ((line = bri.readLine()) != null) {
+                                    System.out.println(line);
+                                    //logtofile(line);
+                                    //modelolog.addElement(line);
+                                }
+                                bri.close();
+                                while ((line = bre.readLine()) != null) {
+                                    System.out.println(line);
+                                    //logtofile(line);
+                                    //modelolog.addElement(line);
+                                }
+                                bre.close();
+                                p.waitFor();
+                                System.out.println("Done.");
+
+                            } catch (Exception err) {
+                                System.out.println(err.toString());
+                                //modelolog.addElement(err);
+                                ///logtofile(err.toString());
+                            }
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -193,30 +436,33 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         initComponents();
         jPanel1.setVisible(false);
         jPanel2.setVisible(false);
+        for (String sk : skinss) {
+            jComboBox2.addItem(sk);
+        }
+        jComboBox2.setSelectedIndex(1);
         //jTextField1.setText("http://www.youtube.com/watch?v=ObKk-0AVlcI");
         jTextField2.setText("C:\\Users\\" + System.getProperty("user.name") + "\\Desktop");
-        DefaultComboBoxModel modelo = new DefaultComboBoxModel();
-        Object[] skins = SubstanceLookAndFeel.getAllSkins().values().toArray();
-
-        System.out.print(SubstanceLookAndFeel.getAllSkins());
-        for (int i = 0; i < skins.length; i++) {
-            modelo.addElement(skins[i].toString());
-        }
+        jTextField3.setText("C:\\Users\\" + System.getProperty("user.name") + "\\Desktop");
         jProgressBar1.setStringPainted(true);
-        //jComboBox2.setModel(modelo);
         jList1.setModel(modelo_lista);
+        this.setLocationRelativeTo(getRootPane());
 
 
     }
 
-    public Icon scanImage(String fn) throws IOException {
-        BufferedImage img = null;
-        URL url = new URL(fn);
-        img = ImageIO.read(url);
-        Image resizedimage2 = (Image) img;
-        ImageIcon resizedimage3 = new ImageIcon(resizedimage2);
-        jLabel9.setIcon(resizedimage3);
-        return resizedimage3;
+    public Icon scanImage(String fn) {
+        try {
+            BufferedImage img = null;
+            URL url = new URL(fn);
+            img = ImageIO.read(url);
+            Image resizedimage2 = (Image) img;
+            ImageIcon resizedimage3 = new ImageIcon(resizedimage2);
+            jLabel9.setIcon(resizedimage3);
+            return resizedimage3;
+        } catch (Exception ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     /**
@@ -245,6 +491,8 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
+        jLabel11 = new javax.swing.JLabel();
+        jCheckBox1 = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         jTextField3 = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
@@ -256,12 +504,14 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
         jProgressBar2 = new javax.swing.JProgressBar();
+        jCheckBox2 = new javax.swing.JCheckBox();
+        jLabel12 = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
-        jButton7 = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         jComboBox2 = new javax.swing.JComboBox(new Vector<SkinInfo>(
             SubstanceLookAndFeel.getAllSkins().values()));
+    filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+    jButton9 = new javax.swing.JButton();
 
     jButton4.setText("jButton4");
 
@@ -295,10 +545,10 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         }
     });
     jTextField1.addInputMethodListener(new java.awt.event.InputMethodListener() {
-        public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-        }
         public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
             jTextField1InputMethodTextChanged(evt);
+        }
+        public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
         }
     });
 
@@ -321,6 +571,8 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         }
     });
 
+    jLabel11.setText("To MP3:");
+
     javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
     jPanel1.setLayout(jPanel1Layout);
     jPanel1Layout.setHorizontalGroup(
@@ -328,32 +580,38 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addGroup(jPanel1Layout.createSequentialGroup()
             .addContainerGap()
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addComponent(jLabel11)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(jCheckBox1))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel8)))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jLabel2)
-                        .addComponent(jLabel1)
-                        .addComponent(jLabel5)
-                        .addComponent(jLabel6)
-                        .addComponent(jLabel8))
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(0, 454, Short.MAX_VALUE))
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 401, Short.MAX_VALUE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
                                     .addComponent(jTextField2))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(6, 6, 6)))
-                        .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGap(0, 66, Short.MAX_VALUE))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addContainerGap()))))
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton2)
                     .addGap(31, 31, 31))))
     );
@@ -383,7 +641,11 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                 .addComponent(jLabel8)
                 .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
-            .addComponent(jButton2)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jCheckBox1)))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
@@ -418,26 +680,30 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         }
     });
     jTextField4.addInputMethodListener(new java.awt.event.InputMethodListener() {
-        public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-        }
         public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
             jTextField4InputMethodTextChanged(evt);
+        }
+        public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
         }
     });
 
     jLabel4.setText("Link:");
 
-    jButton8.setText("jButton8");
+    jButton8.setText("Get Info");
     jButton8.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
             jButton8ActionPerformed(evt);
         }
     });
 
-    jList1.setModel(new DefaultListModel());
+    jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+    jList1.setModel(modelo_lista);
     jList1.setDoubleBuffered(true);
     jList1.setCellRenderer(new BookCellRenderer());
     jScrollPane1.setViewportView(jList1);
+
+    jLabel12.setText("To MP3:");
 
     javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
     jPanel2.setLayout(jPanel2Layout);
@@ -445,26 +711,32 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         .addGroup(jPanel2Layout.createSequentialGroup()
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                    .addComponent(jProgressBar2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(jButton5))
                 .addGroup(jPanel2Layout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 626, Short.MAX_VALUE)
                         .addGroup(jPanel2Layout.createSequentialGroup()
                             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(jLabel3)
                                 .addComponent(jLabel4))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jTextField4)
-                                .addComponent(jTextField3))
+                                .addGroup(jPanel2Layout.createSequentialGroup()
+                                    .addComponent(jTextField3)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jTextField4))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton8)
-                                .addComponent(jButton6)))
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)))
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                    .addComponent(jProgressBar2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(jButton5)))
+                                .addGroup(jPanel2Layout.createSequentialGroup()
+                                    .addComponent(jLabel12)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jCheckBox2)))))))
             .addContainerGap())
     );
     jPanel2Layout.setVerticalGroup(
@@ -476,10 +748,15 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                 .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(jButton8))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jLabel3)
-                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jButton6))
+            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton6))
+                    .addComponent(jCheckBox2)))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -495,20 +772,8 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
     jToolBar1.setRollover(true);
     jToolBar1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-    jButton7.setText("Settings");
-    jButton7.setFocusable(false);
-    jButton7.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-    jButton7.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-    jButton7.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            jButton7ActionPerformed(evt);
-        }
-    });
-    jToolBar1.add(jButton7);
-
     jLabel10.setText("Skin:");
     jToolBar1.add(jLabel10);
-    jToolBar1.add(filler1);
 
     jComboBox2.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -516,12 +781,24 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         }
     });
     jToolBar1.add(jComboBox2);
+    jToolBar1.add(filler1);
+
+    jButton9.setText("About");
+    jButton9.setFocusable(false);
+    jButton9.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+    jButton9.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+    jButton9.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            jButton9ActionPerformed(evt);
+        }
+    });
+    jToolBar1.add(jButton9);
 
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 625, Short.MAX_VALUE)
+        .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 651, Short.MAX_VALUE)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jTabbedPane1))
     );
@@ -529,10 +806,10 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         .addGroup(layout.createSequentialGroup()
             .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGap(0, 362, Short.MAX_VALUE))
+            .addGap(0, 367, Short.MAX_VALUE))
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 24, Short.MAX_VALUE)
+                .addGap(0, 29, Short.MAX_VALUE)
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
     );
 
@@ -635,22 +912,14 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
 
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-
+    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
         try {
 
-            UIManager.setLookAndFeel("org.pushingpixels.substance.api.skin.SubstanceModerateLookAndFeel");
+            UIManager.setLookAndFeel("org.pushingpixels.substance.api.skin." + jComboBox2.getSelectedItem().toString());
             SwingUtilities.updateComponentTreeUI(this);
         } catch (Exception e) {
             System.out.println("Falha ao realizar a mudanca de estilo" + e);
         }
-        ;
-
-
-    }//GEN-LAST:event_jButton7ActionPerformed
-
-    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
@@ -687,11 +956,13 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
 
             e.printStackTrace();
         }
+        int x = 0;
         for (String v : links) {
+
             if (v.startsWith("/watch?v=") && v.contains("index")) {
                 String spliter[] = v.split("v=");
                 String spliter2[] = spliter[1].split("&amp;");
-                System.out.print(spliter2[0] + "\n ");
+                //System.out.print(spliter2[0] + "\n ");
                 int format = 18;
                 String encoding = "UTF-8";
                 String userAgent = "Mozilla/5.0 (Windows NT 6.1; rv:12.0) Gecko/20100101 Firefox/12.0";
@@ -704,13 +975,14 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                 } catch (Exception ex) {
                     Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
-               
-                if (vd.status.equals("ok") ) {
+
+                if (vd.status.equals("ok")) {
                     play_list.add(vd);
 
                     modelo_lista.addElement(vd);
-                }else{
-                JOptionPane.showMessageDialog(this, "Fail getting video"+vd.status);
+                } else {
+                    x = x + 1;
+
                 }
 
                 //get_info(spliter2[0],format,encoding ,userAgent, outputDir, extension);
@@ -718,10 +990,16 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
 
 
         }
-
+        if (x != 0) {
+            JOptionPane.showMessageDialog(this, "It was not possible to get all videos!! Sorry");
+        }
         setCursor(Cursor.DEFAULT_CURSOR);
 
     }//GEN-LAST:event_jButton8ActionPerformed
+
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+        new about().setVisible(true);
+    }//GEN-LAST:event_jButton9ActionPerformed
     private static String getResponseData(URLConnection conn) throws Exception {
         StringBuffer sb = new StringBuffer();
         String data = "";
@@ -789,7 +1067,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         HttpGet httpget = new HttpGet(uri);
         httpget.setHeader("User-Agent", userAgent);
 
-        System.out.println("Executing " + uri);
+        //System.out.println("Executing " + uri);
         HttpResponse response = httpclient.execute(httpget, localContext);
         HttpEntity entity = response.getEntity();
         if (entity != null && response.getStatusLine().getStatusCode() == 200) {
@@ -820,7 +1098,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                         String[] formats = commaPattern.split(val);
 
                         for (String fmt : formats) {
-                            System.out.println(URLDecoder.decode(URLDecoder.decode(fmt)));
+                            //System.out.println(URLDecoder.decode(URLDecoder.decode(fmt)));
                             String url = URLDecoder.decode(URLDecoder.decode(fmt));
                             String split_url[] = url.split("rl=");
                             for (int i = 0; i < split_url.length; i++) {//System.out.println("Split url n"+i+" = "+split_url[i]);
@@ -830,7 +1108,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                                 //System.out.println("Split quality n " + i + " = " + split_url[i]);
                             }
                             downloadUrl = split_quality[0];
-                            System.out.println("down_url= " + split_quality[0]);
+                            //System.out.println("down_url= " + split_quality[0]);
                             /*
                              * String[] fmtPieces = pipePattern.split(fmt);
                              *
@@ -840,7 +1118,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                              * if (pieceFormat == format) { // found what we *
                              * downloadUrl = fmtPieces[1]; break; } }
                              */
-                            System.out.println("\n\n\n");
+                            //System.out.println("\n\n\n");
                         }
                     }
                 }
@@ -852,16 +1130,17 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                     filename += "_" + videoId;
                 }
                 filename += "." + extension;
+                filename = filename.replaceAll(" ", "-");
                 File outputfile = new File(outputdir, filename);
-                System.out.println("download url=" + downloadUrl);
+                //System.out.println("download url=" + downloadUrl);
                 if (downloadUrl != null) {
-                    System.out.println("\npassei aki\n");
+                    //System.out.println("\npassei aki\n");
                     //downloadWithHttpClient(userAgent, downloadUrl, outputfile);
-                    task = new Task();
-                    task.addPropertyChangeListener(this);
-                    task.downloadUrl = g_downloadUrl;
-                    task.outputfile = g_outputFile;
-                    task.userAgent = g_userAgeng;
+                    single_download = new single_download();
+                    single_download.addPropertyChangeListener(this);
+                    single_download.downloadUrl = g_downloadUrl;
+                    single_download.outputfile = g_outputFile;
+                    single_download.userAgent = g_userAgeng;
                     g_userAgeng = userAgent;
                     g_downloadUrl = downloadUrl;
                     g_outputFile = outputfile;
@@ -890,7 +1169,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
         String token = null;
         String downloadUrl = null;
         String filename = videoId;
-        String title = null, image = null, status = null;
+        String title = null, image = null, status = null, author = null;
         System.out.println("Executing " + uri);
         HttpResponse response = httpclient.execute(httpget, localContext);
         HttpEntity entity = response.getEntity();
@@ -919,6 +1198,9 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                     } else if (key.equals("status")) {
                         //scanImage(val);
                         status = val;
+                    } else if (key.equals("author")) {
+                        //scanImage(val);
+                        author = val;
                     } else if (key.equals("url_encoded_fmt_stream_map")) {
 
 
@@ -963,29 +1245,29 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
                 if (downloadUrl != null) {
                     //System.out.println("\npassei aki\n");
                     //downloadWithHttpClient(userAgent, downloadUrl, outputfile);
-                    task = new Task();
-                    task.addPropertyChangeListener(this);
-                    task.downloadUrl = g_downloadUrl;
-                    task.outputfile = g_outputFile;
-                    task.userAgent = g_userAgeng;
+                    single_download = new single_download();
+                    single_download.addPropertyChangeListener(this);
+                    single_download.downloadUrl = g_downloadUrl;
+                    single_download.outputfile = g_outputFile;
+                    single_download.userAgent = g_userAgeng;
                     g_userAgeng = userAgent;
                     g_downloadUrl = downloadUrl;
                     g_outputFile = outputfile;
                 }
             }
         }
-        v = new video(token, title, image, downloadUrl, videoId, status, outputdir);
-        System.out.println(v.toString() + "\n\n\n\n\n\n\n");
+        v = new video(token, title, image, downloadUrl, videoId, status, author, outputdir);
+        //System.out.println(v.toString() + "\n\n\n\n\n\n\n");
         return v;
 
     }
 
     private void downloadWithHttpClient(String userAgent, String downloadUrl, File outputfile) throws Exception {
-        System.out.println("\nentrei no download\n");
+        //System.out.println("\nentrei no download\n");
         HttpGet httpget2 = new HttpGet(downloadUrl);
         httpget2.setHeader("User-Agent", userAgent);
 
-        System.out.println("\n\n\n\ndownload Executing " + httpget2.getURI());
+        //System.out.println("\n\n\n\ndownload Executing " + httpget2.getURI());
         HttpClient httpclient2 = new DefaultHttpClient();
         HttpResponse response2 = httpclient2.execute(httpget2);
         HttpEntity entity2 = response2.getEntity();
@@ -1083,12 +1365,16 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
+    private javax.swing.JButton jButton9;
+    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1113,9 +1399,9 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        task = new Task();
-        task.addPropertyChangeListener(this);
-        task.execute();
+        single_download = new single_download();
+        single_download.addPropertyChangeListener(this);
+        single_download.execute();
     }
 
     @Override
@@ -1125,7 +1411,7 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
             jProgressBar1.setMaximum(max);
 
             jProgressBar1.setValue(prog);
-            System.out.println("max= " + max + "prog= " + prog);
+            //System.out.println("max= " + max + "prog= " + prog);
 
         }
     }
@@ -1134,14 +1420,16 @@ public class GUI extends javax.swing.JFrame implements ActionListener, PropertyC
 
         public Component getListCellRendererComponent(JList list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus) {
-            video video = (video) value;  // Using value we are getting the object in JList
+            video video = (video) value; // Using value we are getting the object in JList
             //System.out.println(video.toString());
             setSize(new Dimension(300, 20));
-            setText(video.getTitle());  // Setting the text
+            setText("<html><body>Title: " + video.getTitle() + "<br>Author: " + video.getAuthor() + "<html><body>"); // Setting the text
             try {
-                setIcon(scanImage(video.getThumbnail_url())); // Setting the Image Icon
-            } catch (IOException ex) {
-                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                //java.awt.Image image = java.awt.Toolkit.getDefaultToolkit().getDefaultToolkit().createImage(video.getThumbnail_url());
+                java.net.URL where = new URL(video.getThumbnail_url());
+                setIcon(new ImageIcon(where)); // Setting the Image Icon
+            } catch (Exception ex) {
+                System.out.println("1sadnbgusbfalsjkdfhajbfaliudfjfsdf" + ex);
             }
 
             return this;

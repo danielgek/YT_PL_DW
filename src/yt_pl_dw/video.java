@@ -17,17 +17,27 @@ public class video {
     public String download_url;
     public String id;
     public String status;
+    public String author;
     File outputfile;
 
-    public video(String token, String title, String thumbnail_url, String download_url, String id, String status, File outputfile) {
+    public video(String token, String title, String thumbnail_url, String download_url, String id, String status, String author, File outputfile) {
         this.token = token;
         this.title = title;
         this.thumbnail_url = thumbnail_url;
         this.download_url = download_url;
         this.id = id;
         this.status = status;
+        this.author = author;
         this.outputfile = outputfile;
     }
+    
+    
+    
+    public String getAuthor() {
+        return author;
+    }
+
+    
     
     public String getDownload_url() {
         return download_url;
@@ -59,10 +69,7 @@ public class video {
         return status;
     }
 
-    @Override
-    public String toString() {
-        return "video{" + "token=" + token + ", title=" + title + ", thumbnail_url=" + thumbnail_url + ", download_url=" + download_url + ", id=" + id + ", status=" + status + ", outputfile=" + outputfile + '}';
-    }
+    
 
     
 
